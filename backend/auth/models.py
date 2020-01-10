@@ -1,13 +1,16 @@
 import base64
+from datetime import datetime
 from hashlib import pbkdf2_hmac
 
-from libs.db import Base, BaseMixin
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+                        Text)
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql import func
 
+from base.dbSession import Base, BaseMixin, dbSession
 
-class UserModel(Base, BaseMixin):
+
+class User(Base, BaseMixin):
 
     __tablename__ = 'user'
     salt = b'150e9ff098724b1b9918a738f140731f'
@@ -20,8 +23,8 @@ class UserModel(Base, BaseMixin):
     last_login = Column(DateTime)
     _locked = Column('locked', Boolean, default=False, nullable=False)
     avatar = Column(Text)
-    groups = relationship('GroupModel', secondary='user_groups', backref=backref('users'))
-    permissions = relationship('PermissionModel', secondary='user_permissions')
+    groups = relationship('Group', secondary='user_groups', backref=backref('users'))
+    permissions = relationship('Permission', secondary='user_permissions')
 
     def _hash_password(self, password):
         hash = pbkdf2_hmac('sha256', password.encode(), salt=self.salt, iterations=10)
@@ -67,22 +70,22 @@ class UserModel(Base, BaseMixin):
         }
 
     def __repr__(self):
-        return u'<User - id: %s  name: %s>' % (self.id, self.username)
+        return '<User - id: {}  name: {}>'.format(self.id, self.username)
 
 
-class GroupModel(Base, BaseMixin):
+class Group(Base, BaseMixin):
 
     __tablename__ = 'group'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     group_name = Column(String(50), nullable=False)
-    permissions = relationship('PermissionModel', secondary='group_permissions')
+    permissions = relationship('Permission', secondary='group_permissions')
 
     def __repr__(self):
-        return u'<Group - id: %s  name: %s>' % (self.id, self.group_name)
+        return '<Group - id: {}  name: {}>'.format(self.id, self.group_name)
 
 
-class PermissionModel(Base, BaseMixin):
+class Permission(Base, BaseMixin):
 
     __tablename__ = 'permission'
 
@@ -90,7 +93,21 @@ class PermissionModel(Base, BaseMixin):
     permission_name = Column(String(50), nullable=False)
 
     def __repr__(self):
-        return u'<Permission - id: %s  name: %s>' % (self.id, self.permission_name)
+        return '<Permission - id: {}  name: {}>'.format(self.id, self.permission_name)
+
+
+class Session(Base, BaseMixin):
+    __tablename__ = 'session'
+    session_key = Column(String(40), primary_key=True)
+    session_data = Column(Text)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship('User')
+    expire_date = Column(DateTime)
+
+    @classmethod
+    def remove_expired(cls):
+        dbSession.query(cls).filter(cls.expire_date < datetime.utcnow()).delete()
+        dbSession.commit()
 
 
 class UserGroups(Base, BaseMixin):

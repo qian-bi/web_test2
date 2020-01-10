@@ -1,4 +1,4 @@
-from models import User
+from auth.models import User
 
 
 def authenticate(username=None, password=None, **kwargs):

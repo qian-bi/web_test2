@@ -2,12 +2,17 @@ import datetime
 import uuid
 
 import tornado.escape
-from libs.db import dbSession
+from .dbSession import dbSession
 
-from models import Session
+from auth.models import Session
 
 
 class BaseHandler(tornado.web.RequestHandler):
+
+    def __init__(self, *args, **kwargs):
+        super(BaseHandler, self).__init__(*args, **kwargs)
+        self.res = {'code': 20000}
+
     def initialize(self):
         self.db = dbSession
         try:
@@ -15,6 +20,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.session = Session.get(session_key=session_id)
             if self.session.expire_date < datetime.datetime.utcnow():
                 self.session.delete()
+                self.session.commit()
                 raise AttributeError('Session Expired')
         except AttributeError:
             session_id = str(uuid.uuid4())
@@ -24,6 +30,20 @@ class BaseHandler(tornado.web.RequestHandler):
     def options(self):
         self.set_status(204)
         self.finish()
+
+    def get_resp(self):
+        self.set_status(405)
+
+    def post_resp(self):
+        self.set_status(405)
+
+    def get(self):
+        self.get_resp()
+        self.finish(self.res)
+
+    def post(self):
+        self.post_resp()
+        self.finish(self.res)
 
     def set_default_headers(self):
         self.set_header('Access-Control-Allow-Origin', 'http://localhost:9528')

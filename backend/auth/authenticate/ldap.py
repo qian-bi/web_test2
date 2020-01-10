@@ -3,7 +3,7 @@ import re
 
 from ldap3 import SUBTREE, Connection, ServerPool
 
-from models import Group, User
+from auth.models import Group, User
 
 SERVER_POOL = ["ldap://szsdc01.st.com:389", "ldap://szsdc01.st.com:389"]
 SEARCH_BASE = 'dc=st,dc=com'
@@ -11,7 +11,7 @@ SEARCH_BASE = 'dc=st,dc=com'
 
 def authenticate(username=None, password=None, **kwargs):
     server_pool = ServerPool(SERVER_POOL)
-    conn = Connection(server_pool, user='st\\%s' % username, password=password, check_names=True, lazy=False, raise_exceptions=False)
+    conn = Connection(server_pool, user='st\\{}'.format(username), password=password, check_names=True, lazy=False, raise_exceptions=False)
     conn.open()
     if conn.bind():
         res = conn.search(

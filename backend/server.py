@@ -5,9 +5,9 @@ import tornado.ioloop
 import tornado.web
 from tornado.options import define, options
 
-from config import settings
-from handlers.urls import handlers
-from libs.db import run
+from base.create_tables import run
+from config import APPSETTINGS
+from urls import handlers
 
 define("port", default=36257, help="run port", type=int)
 define("start", default=False, help="start server", type=bool)
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     if options.t:
         run()
     if options.start:
-        app = tornado.web.Application(handlers, **settings)
+        app = tornado.web.Application(handlers, **APPSETTINGS)
         http_server = tornado.httpserver.HTTPServer(app)
         http_server.listen(options.port)
         print('start server...')

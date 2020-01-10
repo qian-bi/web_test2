@@ -2,13 +2,13 @@ import base64
 import json
 from datetime import datetime
 
-from libs.auth import authenticate
+from base.base_handler import BaseHandler
 
-from handlers.base_handler import BaseHandler
+from .authenticate import authenticate
 
 
 class LoginHandler(BaseHandler):
-    def post(self):
+    def post_resp(self):
         data = json.loads(self.request.body)
         username = data.get('username')
         password = base64.b64decode(data.get('password').encode('utf-8')).decode('utf-8')
@@ -17,19 +17,22 @@ class LoginHandler(BaseHandler):
             self.session.user_id = user.id
             user.last_login = datetime.utcnow()
             self.session.add()
-            self.finish({'data': {'login': 1, 'token': self.session.session_key}, 'code': 20000})
+            self.session.commit()
+            self.res.update(data={'login': 1, 'token': self.session.session_key})
         else:
-            self.finish({'code': 60204, 'message': 'Account and password are incorrect.'})
+            self.res.update(code=60204, message='Account and password are incorrect.')
 
 
 class LogoutHandler(BaseHandler):
-    def get(self):
+    def get_resp(self):
         self.clear_cookie('session_id')
-        self.finish({'data': {'logout': 1, 'token': ''}, 'code': 20000})
+        self.session.delete()
+        self.session.commit()
+        self.res.update(data={'logout': 1})
 
 
 class InfoHandler(BaseHandler):
-    def get(self):
+    def get_resp(self):
         user = self.get_current_user()
         if user:
             data = {
@@ -37,6 +40,4 @@ class InfoHandler(BaseHandler):
                 'roles': list(user.get_permissions()),
                 'avatar': user.avatar,
             }
-            self.finish({'data': data, 'code': 20000})
-        else:
-            self.finish({'code': 20000})
+            self.res.update(data=data)
