@@ -5,7 +5,6 @@ from hashlib import pbkdf2_hmac
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
                         Text)
 from sqlalchemy.orm import backref, relationship
-from sqlalchemy.sql import func
 
 from base.dbSession import Base, BaseMixin, dbSession
 
@@ -18,7 +17,7 @@ class User(Base, BaseMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(50), nullable=False)
     _password = Column('password', String(64))
-    createtime = Column(DateTime, server_default=func.utcnow())
+    createtime = Column(DateTime, default=datetime.utcnow)
     update_time = Column(DateTime)
     last_login = Column(DateTime)
     _locked = Column('locked', Boolean, default=False, nullable=False)

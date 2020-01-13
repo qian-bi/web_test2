@@ -1,7 +1,8 @@
+from datetime import datetime
+
 import pytz
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 
 from base.dbSession import Base, BaseMixin
 from config import TIME_ZONE
@@ -15,7 +16,7 @@ class Article(Base, BaseMixin):
     author = Column(String(50), nullable=False)
     status_id = Column(Integer, ForeignKey('article_status.id'), default=1)
     status = relationship('ArticleStatus')
-    display_time = Column(DateTime, server_default=func.utcnow())
+    display_time = Column(DateTime, default=datetime.utcnow)
     pageviews = Column(Integer)
 
     def to_dict(self):
@@ -37,6 +38,12 @@ class ArticleStatus(Base, BaseMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     status = Column(String(50), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'status': self.status,
+        }
 
     def __repr__(self):
         return '<ArticleStatus - id: {}  status: {}>'.format(self.id, self.status)

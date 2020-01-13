@@ -2,9 +2,10 @@ import datetime
 import uuid
 
 import tornado.escape
-from .dbSession import dbSession
 
 from auth.models import Session
+
+from .dbSession import dbSession
 
 
 class BaseHandler(tornado.web.RequestHandler):

@@ -7,3 +7,11 @@ export function getList(params) {
     params
   })
 }
+
+export function postList(data) {
+  return request({
+    url: '/article/list',
+    method: 'post',
+    data
+  })
+}
