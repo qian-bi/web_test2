@@ -5,28 +5,6 @@ from sqlalchemy.orm import sessionmaker
 from config import DATABASE
 
 DB_URI = 'mysql+mysqldb://{USERNAME}:{PASSWORD}@{HOSTNAME}:{PORT}/{DATABASE}?charset=utf8'.format(**DATABASE)
-engine = create_engine(DB_URI, echo=False)
-Session = sessionmaker(bind=engine)
-dbSession = Session()
+engine = create_engine(DB_URI, echo=False, pool_size=10, max_overflow=20, pool_recycle=600)
+dbSession = sessionmaker(bind=engine)
 Base = declarative_base(engine)
-
-
-class BaseMixin:
-
-    @classmethod
-    def get(cls, **kwargs):
-        return dbSession.query(cls).filter_by(**kwargs).first()
-
-    @classmethod
-    def all(cls):
-        return dbSession.query(cls).all()
-
-    def add(self):
-        dbSession.add(self)
-
-    @staticmethod
-    def commit():
-        dbSession.commit()
-
-    def delete(self):
-        dbSession.delete(self)

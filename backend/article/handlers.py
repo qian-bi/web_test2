@@ -12,8 +12,8 @@ class ListHandler(BaseHandler):
 
     @authenticated
     def get_resp(self):
-        items = [article.to_dict() for article in Article.all()]
-        status = [status.to_dict() for status in ArticleStatus.all()]
+        items = [article.to_dict() for article in self.db.query(Article)]
+        status = [status.to_dict() for status in self.db.query(ArticleStatus)]
         self.res.update(data={'total': len(items), 'items': items, 'status': status})
 
     @authenticated

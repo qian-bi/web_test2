@@ -4,11 +4,11 @@ import pytz
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from base.dbSession import Base, BaseMixin
+from base.dbSession import Base
 from config import TIME_ZONE
 
 
-class Article(Base, BaseMixin):
+class Article(Base):
     __tablename__ = 'article'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -33,7 +33,7 @@ class Article(Base, BaseMixin):
         return '<Article - title: {}  author: {}>'.format(self.title, self.author)
 
 
-class ArticleStatus(Base, BaseMixin):
+class ArticleStatus(Base):
     __tablename__ = 'article_status'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

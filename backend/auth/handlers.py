@@ -12,12 +12,12 @@ class LoginHandler(BaseHandler):
         data = json.loads(self.request.body)
         username = data.get('username')
         password = base64.b64decode(data.get('password').encode('utf-8')).decode('utf-8')
-        user = authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password, db=self.db)
         if user:
             self.session.user_id = user.id
             user.last_login = datetime.utcnow()
-            self.session.add()
-            self.session.commit()
+            self.db.add(self.session)
+            self.db.commit()
             self.res.update(data={'login': 1, 'token': self.session.session_key})
         else:
             self.res.update(code=60204, message='Account and password are incorrect.')
@@ -26,8 +26,8 @@ class LoginHandler(BaseHandler):
 class LogoutHandler(BaseHandler):
     def get_resp(self):
         self.clear_cookie('session_id')
-        self.session.delete()
-        self.session.commit()
+        self.db.delete(self.session)
+        self.db.commit()
         self.res.update(data={'logout': 1})
 
 

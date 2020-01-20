@@ -7,5 +7,5 @@ def run():
     print('------------create_end-------------')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()

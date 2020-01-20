@@ -6,10 +6,10 @@ from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
                         Text)
 from sqlalchemy.orm import backref, relationship
 
-from base.dbSession import Base, BaseMixin, dbSession
+from base.dbSession import Base
 
 
-class User(Base, BaseMixin):
+class User(Base):
 
     __tablename__ = 'user'
     salt = b'150e9ff098724b1b9918a738f140731f'
@@ -72,7 +72,7 @@ class User(Base, BaseMixin):
         return '<User - id: {}  name: {}>'.format(self.id, self.username)
 
 
-class Group(Base, BaseMixin):
+class Group(Base):
 
     __tablename__ = 'group'
 
@@ -84,7 +84,7 @@ class Group(Base, BaseMixin):
         return '<Group - id: {}  name: {}>'.format(self.id, self.group_name)
 
 
-class Permission(Base, BaseMixin):
+class Permission(Base):
 
     __tablename__ = 'permission'
 
@@ -95,7 +95,7 @@ class Permission(Base, BaseMixin):
         return '<Permission - id: {}  name: {}>'.format(self.id, self.permission_name)
 
 
-class Session(Base, BaseMixin):
+class Session(Base):
     __tablename__ = 'session'
     session_key = Column(String(40), primary_key=True)
     session_data = Column(Text)
@@ -103,13 +103,8 @@ class Session(Base, BaseMixin):
     user = relationship('User')
     expire_date = Column(DateTime)
 
-    @classmethod
-    def remove_expired(cls):
-        dbSession.query(cls).filter(cls.expire_date < datetime.utcnow()).delete()
-        dbSession.commit()
 
-
-class UserGroups(Base, BaseMixin):
+class UserGroups(Base):
 
     __tablename__ = 'user_groups'
 
@@ -117,7 +112,7 @@ class UserGroups(Base, BaseMixin):
     group_id = Column(Integer, ForeignKey('group.id'), primary_key=True)
 
 
-class UserPermissions(Base, BaseMixin):
+class UserPermissions(Base):
 
     __tablename__ = 'user_permissions'
 
@@ -125,7 +120,7 @@ class UserPermissions(Base, BaseMixin):
     permission_id = Column(Integer, ForeignKey('permission.id'), primary_key=True)
 
 
-class GroupPermissions(Base, BaseMixin):
+class GroupPermissions(Base):
 
     __tablename__ = 'group_permissions'
 
