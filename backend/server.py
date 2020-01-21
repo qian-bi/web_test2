@@ -1,7 +1,4 @@
-import tornado.escape
-import tornado.httpserver
-import tornado.ioloop
-import tornado.web
+import tornado
 from tornado.options import define, options
 
 from base.create_tables import run
@@ -21,4 +18,4 @@ if __name__ == '__main__':
         http_server = tornado.httpserver.HTTPServer(app)
         http_server.listen(options.port)
         print('start server...')
-        tornado.ioloop.IOLoop.instance().start()
+        tornado.ioloop.IOLoop.current().start()

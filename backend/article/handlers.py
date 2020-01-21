@@ -11,13 +11,14 @@ from .tasks import new_article
 class ListHandler(BaseHandler):
 
     @authenticated
-    def get_resp(self):
+    async def get(self):
         items = [article.to_dict() for article in self.db.query(Article)]
         status = [status.to_dict() for status in self.db.query(ArticleStatus)]
         self.res.update(data={'total': len(items), 'items': items, 'status': status})
+        self.finish(self.res)
 
     @authenticated
-    def post_resp(self):
+    async def post(self):
         data = json.loads(self.request.body)
         default = {
             'title': '',
@@ -27,3 +28,4 @@ class ListHandler(BaseHandler):
         }
         new_article.apply_async(kwargs={k: data.get(k, v) for k, v in default.items()})
         self.res.update(data={'new_article': 1})
+        self.finish(self.res)
