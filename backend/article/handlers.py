@@ -1,5 +1,6 @@
 import json
 
+from sqlalchemy import func
 from tornado.web import authenticated
 
 from base.base_handler import BaseHandler
@@ -12,9 +13,12 @@ class ListHandler(BaseHandler):
 
     @authenticated
     async def get(self):
-        items = [article.to_dict() for article in self.db.query(Article)]
+        total = self.db.query(func.count(Article.id)).first()[0]
+        items_per_page = int(self.get_argument('items_per_page', default=100))
+        page = int(self.get_argument('page', default=1))
+        items = [article.to_dict() for article in self.db.query(Article).order_by(Article.id.asc()).limit(items_per_page).offset((page - 1) * items_per_page)]
         status = [status.to_dict() for status in self.db.query(ArticleStatus)]
-        self.res.update(data={'total': len(items), 'items': items, 'status': status})
+        self.res.update(data={'total': total, 'items': items, 'status': status})
         self.finish(self.res)
 
     @authenticated

@@ -40,13 +40,23 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <pagination
+      :total="total"
+      :page.sync="page"
+      :limit.sync="items_per_page"
+      :page-sizes="[50, 100, 150, 200]"
+      @pagination="fetchData"
+    />
   </div>
 </template>
 
 <script>
+import Pagination from '@/components/Pagination'
 import { getList } from '@/api/table'
 
 export default {
+  components: { Pagination },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -60,6 +70,9 @@ export default {
   data() {
     return {
       list: null,
+      total: null,
+      page: 1,
+      items_per_page: 100,
       listLoading: true
     }
   },
@@ -69,7 +82,11 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      getList().then(response => {
+      getList({
+        page: this.page,
+        items_per_page: this.items_per_page
+      }).then(response => {
+        this.total = response.data.total,
         this.list = response.data.items
         this.listLoading = false
       })
