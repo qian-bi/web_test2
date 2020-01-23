@@ -15,7 +15,7 @@ class BaseHandler(RequestHandler):
         self.res = {'code': 20000}
 
     def initialize(self):
-        self.db = dbSession()
+        self.db = dbSession
         try:
             session_id = self.get_secure_cookie('session_id').decode()
             self.session = self.db.query(Session).filter_by(session_key=session_id).first()
@@ -31,9 +31,6 @@ class BaseHandler(RequestHandler):
     def get_current_user(self):
         if self.session:
             return self.session.user
-
-    def on_finish(self):
-        self.db.close()
 
 
 class SessionExpired(Exception):

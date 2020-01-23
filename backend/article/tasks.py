@@ -1,5 +1,4 @@
 import time
-
 from base.celery import app
 from base.dbSession import dbSession
 
@@ -7,11 +6,9 @@ from .models import Article
 
 
 @app.task
-def new_article(db=None, **kwargs):
-    time.sleep(10)
-    db = dbSession()
+def new_article(**kwargs):
+    time.sleep(1)
     article = Article(**kwargs)
-    db.add(article)
-    db.commit()
-    db.close()
+    dbSession.add(article)
+    dbSession.commit()
     return article.to_dict()
